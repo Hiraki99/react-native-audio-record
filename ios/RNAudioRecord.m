@@ -32,7 +32,7 @@ RCT_EXPORT_METHOD(start) {
     // therefore set session category to "Record" before recording
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryRecord error:nil];
 
-    _recordState.mIsRunning = true;
+    _recordState.mIsRunning = 2;
     _recordState.mCurrentPacket = 0;
     
     CFURLRef url = CFURLCreateWithString(kCFAllocatorDefault, (CFStringRef)_filePath, NULL);
@@ -51,15 +51,23 @@ RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve
                   rejecter:(__unused RCTPromiseRejectBlock)reject) {
     RCTLogInfo(@"stop");
     if (_recordState.mIsRunning) {
-        _recordState.mIsRunning = false;
+        _recordState.mIsRunning = 0;
         AudioQueueStop(_recordState.mQueue, true);
         AudioQueueDispose(_recordState.mQueue, true);
         AudioFileClose(_recordState.mAudioFile);
+        [pRecordState->mSelf sendEventWithName:@"done" _filePath];
+
     }
     resolve(_filePath);
     unsigned long long fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath:_filePath error:nil] fileSize];
     RCTLogInfo(@"file path %@", _filePath);
     RCTLogInfo(@"file size %llu", fileSize);
+}
+
+RCT_EXPORT_METHOD(pause:(RCTPromiseResolveBlock)resolve
+                  rejecter:(__unused RCTPromiseRejectBlock)reject) {
+    RCTLogInfo(@"pause");
+    _recordState.mIsRunning = 1;
 }
 
 void HandleInputBuffer(void *inUserData,
@@ -70,7 +78,7 @@ void HandleInputBuffer(void *inUserData,
                        const AudioStreamPacketDescription *inPacketDesc) {
     AQRecordState* pRecordState = (AQRecordState *)inUserData;
     
-    if (!pRecordState->mIsRunning) {
+    if (pRecordState->mIsRunning != 2 ) {
         return;
     }
     
@@ -95,7 +103,7 @@ void HandleInputBuffer(void *inUserData,
 }
 
 - (NSArray<NSString *> *)supportedEvents {
-    return @[@"data"];
+    return @[@"data", @"done"];
 }
 
 - (void)dealloc {

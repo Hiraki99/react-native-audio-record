@@ -30,7 +30,8 @@ public class RNAudioRecordModule extends ReactContextBaseJavaModule {
 
     private AudioRecord recorder;
     private int bufferSize;
-    private boolean isRecording;
+    // 0: stop , 1 : pause, 2: record
+    private int isRecording;
 
     private String tmpFile;
     private String outFile;
@@ -90,7 +91,7 @@ public class RNAudioRecordModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void start() {
-        isRecording = true;
+        isRecording = 2;
         recorder.startRecording();
 
         Thread recordingThread = new Thread(new Runnable() {
@@ -102,11 +103,11 @@ public class RNAudioRecordModule extends ReactContextBaseJavaModule {
                     byte[] buffer = new byte[bufferSize];
                     FileOutputStream os = new FileOutputStream(tmpFile);
 
-                    while (isRecording) {
+                    while (isRecording != 0) {
                         bytesRead = recorder.read(buffer, 0, buffer.length);
 
                         // skip first 2 buffers to eliminate "click sound"
-                        if (bytesRead > 0 && ++count > 2) {
+                        if (bytesRead > 0 && ++count > 2 && isRecording == 2) {
                             base64Data = Base64.encodeToString(buffer, Base64.NO_WRAP);
                             eventEmitter.emit("data", base64Data);
                             os.write(buffer, 0, bytesRead);
@@ -127,15 +128,20 @@ public class RNAudioRecordModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void stop(Promise promise) {
-        isRecording = false;
+        isRecording = 0;
         promise.resolve(outFile);
+    }
+
+    @ReactMethod
+    public void pause(Promise promise) {
+        isRecording = 1;
     }
 
     private void saveAsWav() {
         try {
             FileInputStream in = new FileInputStream(tmpFile);
             FileOutputStream out = new FileOutputStream(outFile);
-            long totalAudioLen = in.getChannel().size();;
+            long totalAudioLen = in.getChannel().size();
             long totalDataLen = totalAudioLen + 36;
 
             addWavHeader(out, totalAudioLen, totalDataLen);
@@ -150,6 +156,7 @@ public class RNAudioRecordModule extends ReactContextBaseJavaModule {
 
             in.close();
             out.close();
+            eventEmitter.emit("done", outFile);
             deleteTempFile();
         } catch (Exception e) {
             e.printStackTrace();

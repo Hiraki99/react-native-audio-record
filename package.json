@@ -1,8 +1,8 @@
 {
   "name": "react-native-audio-record",
-  "version": "0.2.0",
-  "description": "Audio record buffers for React Native",
-  "author": "Vinay",
+  "version": "1.0.0",
+  "description": "Audio record buffers for React Native folk by goodatlas/react-native-audio-record",
+  "author": "Thinh 185",
   "license": "MIT",
   "keywords": [ "react-native", "audio", "record" ],
   "main": "index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/goodatlas/react-native-audio-record.git"
+    "url": "https://github.com/thinh185/react-native-audio-record"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.3",
