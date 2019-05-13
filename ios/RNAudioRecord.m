@@ -55,7 +55,7 @@ RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve
         AudioQueueStop(_recordState.mQueue, true);
         AudioQueueDispose(_recordState.mQueue, true);
         AudioFileClose(_recordState.mAudioFile);
-        [pRecordState->mSelf sendEventWithName:@"done" _filePath];
+        [_recordState.mSelf sendEventWithName:@"done" body:_filePath];
 
     }
     resolve(_filePath);
