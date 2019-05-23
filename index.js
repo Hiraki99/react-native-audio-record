@@ -8,6 +8,7 @@ AudioRecord.init = options => RNAudioRecord.init(options);
 AudioRecord.start = () => RNAudioRecord.start();
 AudioRecord.stop = () => RNAudioRecord.stop();
 AudioRecord.pause = () => RNAudioRecord.pause();
+AudioRecord.restart = () => RNAudioRecord.restart();
 
 const eventsMap = {
   data: 'data',

@@ -137,6 +137,11 @@ public class RNAudioRecordModule extends ReactContextBaseJavaModule {
         isRecording = 1;
     }
 
+    @ReactMethod
+    public void restart(Promise promise) {
+        isRecording = 2;
+    }
+
     private void saveAsWav() {
         try {
             FileInputStream in = new FileInputStream(tmpFile);

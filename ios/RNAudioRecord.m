@@ -70,6 +70,12 @@ RCT_EXPORT_METHOD(pause:(RCTPromiseResolveBlock)resolve
     _recordState.mIsRunning = 1;
 }
 
+RCT_EXPORT_METHOD(restart:(RCTPromiseResolveBlock)resolve
+                  rejecter:(__unused RCTPromiseRejectBlock)reject) {
+    RCTLogInfo(@"restart");
+    _recordState.mIsRunning = 2;
+}
+
 void HandleInputBuffer(void *inUserData,
                        AudioQueueRef inAQ,
                        AudioQueueBufferRef inBuffer,
