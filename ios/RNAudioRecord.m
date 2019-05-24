@@ -85,6 +85,7 @@ void HandleInputBuffer(void *inUserData,
     AQRecordState* pRecordState = (AQRecordState *)inUserData;
     
     if (pRecordState->mIsRunning != 2 ) {
+        AudioQueueEnqueueBuffer(pRecordState->mQueue, inBuffer, 0, NULL);
         return;
     }
     
