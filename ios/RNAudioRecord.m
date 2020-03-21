@@ -16,10 +16,10 @@ RCT_EXPORT_METHOD(init:(NSDictionary *) options) {
     _recordState.mDataFormat.mFormatID          = kAudioFormatLinearPCM;
     _recordState.mDataFormat.mFormatFlags       = _recordState.mDataFormat.mBitsPerChannel == 8 ? kLinearPCMFormatFlagIsPacked : (kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked);
 
-    
+
     _recordState.bufferByteSize = 2048;
     _recordState.mSelf = self;
-    
+
     NSString *fileName = options[@"wavFile"] == nil ? @"audio.wav" : options[@"wavFile"];
     NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
     _filePath = [NSString stringWithFormat:@"%@/%@", docDir, fileName];
@@ -34,11 +34,11 @@ RCT_EXPORT_METHOD(start) {
 
     _recordState.mIsRunning = 2;
     _recordState.mCurrentPacket = 0;
-    
+
     CFURLRef url = CFURLCreateWithString(kCFAllocatorDefault, (CFStringRef)_filePath, NULL);
     AudioFileCreateWithURL(url, kAudioFileWAVEType, &_recordState.mDataFormat, kAudioFileFlags_EraseFile, &_recordState.mAudioFile);
     CFRelease(url);
-    
+
     AudioQueueNewInput(&_recordState.mDataFormat, HandleInputBuffer, &_recordState, NULL, NULL, 0, &_recordState.mQueue);
     for (int i = 0; i < kNumberBuffers; i++) {
         AudioQueueAllocateBuffer(_recordState.mQueue, _recordState.bufferByteSize, &_recordState.mBuffers[i]);
@@ -56,7 +56,7 @@ RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve
         AudioQueueDispose(_recordState.mQueue, true);
         AudioFileClose(_recordState.mAudioFile);
         [pRecordState->mSelf sendEventWithName:@"done" _filePath];
-
+        [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
     }
     resolve(_filePath);
     unsigned long long fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath:_filePath error:nil] fileSize];
@@ -77,11 +77,11 @@ void HandleInputBuffer(void *inUserData,
                        UInt32 inNumPackets,
                        const AudioStreamPacketDescription *inPacketDesc) {
     AQRecordState* pRecordState = (AQRecordState *)inUserData;
-    
+
     if (pRecordState->mIsRunning != 2 ) {
         return;
     }
-    
+
     if (AudioFileWritePackets(pRecordState->mAudioFile,
                               false,
                               inBuffer->mAudioDataByteSize,
@@ -92,13 +92,13 @@ void HandleInputBuffer(void *inUserData,
                               ) == noErr) {
         pRecordState->mCurrentPacket += inNumPackets;
     }
-    
+
     short *samples = (short *) inBuffer->mAudioData;
     long nsamples = inBuffer->mAudioDataByteSize;
     NSData *data = [NSData dataWithBytes:samples length:nsamples];
     NSString *str = [data base64EncodedStringWithOptions:0];
     [pRecordState->mSelf sendEventWithName:@"data" body:str];
-    
+
     AudioQueueEnqueueBuffer(pRecordState->mQueue, inBuffer, 0, NULL);
 }
 
