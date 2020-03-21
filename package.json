@@ -1,6 +1,6 @@
 {
   "name": "react-native-audio-record",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Audio record buffers for React Native folk by goodatlas/react-native-audio-record",
   "author": "Thinh 185",
   "license": "MIT",
