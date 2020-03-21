@@ -1,21 +1,23 @@
+
 require 'json'
 
-Pod::Spec.new do |s|
-  # NPM package specification
-  package = JSON.parse(File.read(File.join(File.dirname(__FILE__), 'package.json')))
+package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
 
-  s.name           = 'RNAudio'
+Pod::Spec.new do |s|
+  s.name           = "RNAudioRecord"
   s.version        = package['version']
-  s.license        = 'MIT'
-  s.summary        = 'Audio recorder library for React Native'
-  s.author         = { 'Thinh Nguyen' => 'thinh185' }
+  s.summary        = package['description']
+  s.description    = package['description']
+  s.license        = package['license']
+  s.author         = package['author']
   s.homepage       = "https://github.com/thinh185/react-native-audio-record"
-  s.source         = { :git => 'https://github.com/thinh185/react-native-audio-record', :tag => "v#{s.version}"}
-  s.platform       = :ios, '8.0'
-  s.preserve_paths = '*.js'
-  s.frameworks     = 'AVFoundation'
+  s.source         = { :git => 'https://github.com/thinh185/react-native-audio-record' }
+
+  s.requires_arc   = true
+  s.platform       = :ios, '7.0'
+
+  s.preserve_paths = 'README.md', 'package.json', 'index.js'
+  s.source_files   = 'iOS/*.{h,m}'
 
   s.dependency 'React'
-
-  s.source_files = 'ios/AudioRecorderManager.{h,m}'
 end
