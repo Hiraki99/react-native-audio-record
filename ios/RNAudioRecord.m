@@ -55,7 +55,6 @@ RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve
         AudioQueueStop(_recordState.mQueue, true);
         AudioQueueDispose(_recordState.mQueue, true);
         AudioFileClose(_recordState.mAudioFile);
-        [pRecordState->mSelf sendEventWithName:@"done" _filePath];
         [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
     }
     resolve(_filePath);
